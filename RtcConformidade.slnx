@@ -1,0 +1,5 @@
+<Solution>
+  <Folder Name="/tests/">
+    <Project Path="tests/RtcConformidade.Tests/RtcConformidade.Tests.csproj" />
+  </Folder>
+</Solution>
