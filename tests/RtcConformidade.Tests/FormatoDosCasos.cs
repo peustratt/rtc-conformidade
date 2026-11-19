@@ -75,7 +75,7 @@ public partial class FormatoDosCasos
             }
         }
 
-        FalharSeHouver("Casos com problema de formato", problemas);
+        Falhas.SeHouver("Casos com problema de formato", problemas);
     }
 
     [Fact]
@@ -89,17 +89,7 @@ public partial class FormatoDosCasos
             .Select(grupo => grupo.Key)
             .ToList();
 
-        FalharSeHouver("Ids repetidos", repetidos);
-    }
-
-    /// <summary>Falha listando um problema por linha; o Assert.Empty do xUnit corta a lista.</summary>
-    private static void FalharSeHouver(string titulo, IReadOnlyCollection<string> problemas)
-    {
-        if (problemas.Count > 0)
-        {
-            Assert.Fail($"{titulo} ({problemas.Count}):{Environment.NewLine}"
-                + string.Join(Environment.NewLine, problemas.Select(p => "  - " + p)));
-        }
+        Falhas.SeHouver("Ids repetidos", repetidos);
     }
 
     /// <summary>Lê o id do caso. Arquivos malformados ficam de fora: o outro teste já os aponta.</summary>

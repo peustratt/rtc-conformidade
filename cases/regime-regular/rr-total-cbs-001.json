@@ -1,0 +1,42 @@
+{
+  "id": "rr-total-cbs-001",
+  "calculadora": "regime-regular",
+  "endpoint": "POST /regime-geral",
+  "descricao": "Dois itens cujos vCBS arredondados somam 27.05, mas o total da nota sai 27.06",
+  "baseLegal": "Rejeição 1091 da SEFAZ: \"Total de CBS difere da soma dos itens\"",
+  "origem": "https://github.com/ReceitaFederal/calculadora-rtc-regime-regular/issues/3",
+  "entrada": {
+    "id": "rtc-conformidade-rr-total-cbs-001",
+    "versao": "0.0.1",
+    "dhFatoGerador": "2026-11-12T00:00:00-03:00",
+    "municipio": 4313409,
+    "uf": "RS",
+    "itens": [
+      {
+        "numero": 1,
+        "ncm": "95030010",
+        "cst": "000",
+        "cClassTrib": "000001",
+        "baseCalculo": 2315.79,
+        "quantidade": 1,
+        "unidade": "UN"
+      },
+      {
+        "numero": 2,
+        "ncm": "95030010",
+        "cst": "000",
+        "cClassTrib": "000001",
+        "baseCalculo": 690.52,
+        "quantidade": 1,
+        "unidade": "UN"
+      }
+    ]
+  },
+  "esperado": {
+    "objetos": [
+      { "tribCalc": { "IBSCBS": { "gIBSCBS": { "gCBS": { "vCBS": "20.84" } } } } },
+      { "tribCalc": { "IBSCBS": { "gIBSCBS": { "gCBS": { "vCBS": "6.21" } } } } }
+    ],
+    "total": { "tribCalc": { "IBSCBSTot": { "gCBS": { "vCBS": "27.05" } } } }
+  }
+}

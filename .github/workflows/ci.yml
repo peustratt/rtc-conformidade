@@ -25,5 +25,7 @@ jobs:
       - name: Compilar
         run: dotnet build --no-restore --configuration Release
 
+      # Os testes marcados com Requer=calculadora ficam de fora até as calculadoras
+      # subirem no CI com Testcontainers (semana 2).
       - name: Testar
-        run: dotnet test --no-build --configuration Release --logger "console;verbosity=normal"
+        run: dotnet test --no-build --configuration Release --filter "Requer!=calculadora" --logger "console;verbosity=normal"

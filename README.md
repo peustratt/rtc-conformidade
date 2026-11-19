@@ -23,7 +23,7 @@ Os repositórios oficiais não aceitam pull requests de fora. Por isso, cada inv
 
 ## Invariantes planejadas
 
-- [ ] O total da nota é igual à soma dos itens arredondados (regime-regular#3 e #10, simples-nacional#4)
+- [ ] O total da nota é igual à soma dos itens arredondados (regime-regular#3 e #10, simples-nacional#4). Em andamento: `Invariantes.TotalIgualASomaDosItens` já confere `vCBS`, `vIBS`, `vIBSUF` e `vIBSMun` do regime regular
 - [ ] `vIBS` é igual a `vIBSUF + vIBSMun`
 - [ ] Um `cClassTrib` encerrado não aparece como vigente
 
@@ -48,6 +48,12 @@ Você precisa do [.NET 10 SDK](https://dotnet.microsoft.com/download) e, para su
    ```
 
    Para apontar para outro endereço ou outra versão, defina as variáveis da tabela acima, por exemplo `RTC_REGIME_REGULAR_URL=http://localhost:9090/api/calculadora dotnet test`.
+
+   Sem a calculadora no ar, rode só os testes que não precisam dela (o CI faz isso por enquanto):
+
+   ```bash
+   dotnet test --filter "Requer!=calculadora"
+   ```
 
 ## Estrutura
 
