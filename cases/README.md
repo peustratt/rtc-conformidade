@@ -1,6 +1,6 @@
 # Casos de teste
 
-Cada caso é um arquivo `.json` dentro da pasta da calculadora que ele testa (`regime-regular/` ou `simples-nacional/`).
+Cada caso é um arquivo `.json` dentro da pasta da calculadora que ele testa (`regime-regular/` ou `simples-nacional/`). Subpastas são permitidas, por exemplo `regime-regular/arredondamento/`.
 
 ## Formato
 
@@ -32,4 +32,4 @@ Cada caso é um arquivo `.json` dentro da pasta da calculadora que ele testa (`r
 
 - Só entram casos cujo valor esperado tem origem verificável. Sem origem, o caso fica de fora.
 - Valores monetários são lidos como `decimal`, nunca como `double`, para não introduzir erro de arredondamento no próprio teste.
-- O teste `FormatoDosCasos` confere os campos obrigatórios e os ids repetidos em todo `dotnet test`.
+- O teste `FormatoDosCasos` roda em todo `dotnet test`, sem precisar da calculadora. Ele confere se o JSON é válido, se os campos obrigatórios estão presentes, se o `id` segue o formato e não se repete, e se a `calculadora` bate com a pasta do arquivo.
