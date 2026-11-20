@@ -16,52 +16,72 @@ Os repositórios oficiais não aceitam pull requests de fora. Por isso, cada inv
 
 ## Calculadoras cobertas
 
-| Calculadora | Repositório oficial | URL base padrão | Variável para trocar |
-| --- | --- | --- | --- |
-| Regime regular | [calculadora-rtc-regime-regular](https://github.com/ReceitaFederal/calculadora-rtc-regime-regular) | `http://localhost:8080/api/calculadora` | `RTC_REGIME_REGULAR_URL` |
-| Simples Nacional | [calculadora-rtc-simples-nacional](https://github.com/ReceitaFederal/calculadora-rtc-simples-nacional) | `http://localhost:8082/api` | `RTC_SIMPLES_NACIONAL_URL` |
+| Calculadora | Repositório oficial | Versão testada |
+| --- | --- | --- |
+| Regime regular | [calculadora-rtc-regime-regular](https://github.com/ReceitaFederal/calculadora-rtc-regime-regular) | 1.7.2 |
+| Simples Nacional | [calculadora-rtc-simples-nacional](https://github.com/ReceitaFederal/calculadora-rtc-simples-nacional) | 1.0.2 |
 
-## Invariantes planejadas
+As duas usam o banco V0073. Para testar outra versão, veja [Outra versão ou outro endereço](#outra-versão-ou-outro-endereço).
 
-- [ ] O total da nota é igual à soma dos itens arredondados (regime-regular#3 e #10, simples-nacional#4). Em andamento: `Invariantes.TotalIgualASomaDosItens` já confere `vCBS`, `vIBS`, `vIBSUF` e `vIBSMun` do regime regular
-- [ ] `vIBS` é igual a `vIBSUF + vIBSMun`
-- [ ] Um `cClassTrib` encerrado não aparece como vigente
+## Invariantes
+
+Todas comparam os valores como aparecem na resposta, já arredondados, que é o que a SEFAZ confere ao autorizar o documento.
+
+- [x] **1. O total da nota é igual à soma dos itens.** No regime regular, `vCBS`, `vIBS`, `vIBSUF` e `vIBSMun` (regime-regular#3, rejeição 1091). No Simples Nacional, todos os totais da operação, de `vRBSNtot` a `totalTributos` (simples-nacional#4).
+- [x] **2. Um valor composto é igual à soma das partes.** No regime regular, `vIBS` é `vIBSUF + vIBSMun`, no item e no total (regime-regular#10, regra UB54a-10). No Simples Nacional, o `totalItem` é `vIBSSN + vCBSSN + IS`, e o `totalTributos` é a soma dos totais de cada tributo.
+- [ ] **3. Um `cClassTrib` encerrado não aparece como vigente.**
+
+As invariantes rodam sobre a resposta de cada caso em [cases/](cases/). O código fica em `tests/RtcConformidade.Tests/Invariantes.cs`.
 
 ## Como rodar
 
-Você precisa do [.NET 10 SDK](https://dotnet.microsoft.com/download) e, para subir as calculadoras, do Java 21.
+Você precisa do [.NET 10 SDK](https://dotnet.microsoft.com/download) e do Docker. Na raiz do repositório:
 
-1. Suba a calculadora no perfil `offline`, seguindo o README do repositório oficial. No regime regular, a partir da raiz dele:
+```bash
+dotnet test
+```
 
-   ```bash
-   mkdir -p ./calculadora/db
-   ./mvnw flyway:migrate -Dflyway.configFiles=./flyway/flyway-pro.conf --batch-mode --errors
-   ./mvnw spring-boot:run -Dspring-boot.run.profiles=offline
-   ```
+A suíte constrói as duas calculadoras a partir do código-fonte oficial e as sobe em containers ([Testcontainers](https://dotnet.testcontainers.org/)), usando [calculadoras/Dockerfile](calculadoras/Dockerfile). A primeira execução leva alguns minutos, por causa da compilação; as seguintes reaproveitam o cache do Docker e levam cerca de um minuto.
 
-   No Windows, use o WSL2.
+Para rodar só os testes que não precisam das calculadoras (formato dos casos e checagens das invariantes):
 
-2. Na raiz deste repositório, rode a suíte:
+```bash
+dotnet test --filter "Requer!=calculadora"
+```
 
-   ```bash
-   dotnet test
-   ```
+### Outra versão ou outro endereço
 
-   Para apontar para outro endereço ou outra versão, defina as variáveis da tabela acima, por exemplo `RTC_REGIME_REGULAR_URL=http://localhost:9090/api/calculadora dotnet test`.
+As variáveis de ambiente abaixo mudam o que a suíte testa, sem mudar o código. Troque `RTC_REGIME_REGULAR` por `RTC_SIMPLES_NACIONAL` para o Simples Nacional.
 
-   Sem a calculadora no ar, rode só os testes que não precisam dela (o CI faz isso por enquanto):
+| Variável | O que faz | Padrão |
+| --- | --- | --- |
+| `RTC_REGIME_REGULAR_URL` | Usa a calculadora que já está nesse endereço, sem subir container | (sobe um container) |
+| `RTC_REGIME_REGULAR_REF` | Tag, branch ou commit do repositório oficial a compilar | `1.7.2` (Simples Nacional: `1.0.2`) |
+| `RTC_REGIME_REGULAR_REPO` | Outro repositório, por exemplo um fork com uma correção | o repositório oficial |
+| `RTC_REGIME_REGULAR_JAVA` | Versão do Java da compilação | `25` |
 
-   ```bash
-   dotnet test --filter "Requer!=calculadora"
-   ```
+O banco das duas calculadoras é gerado pelas migrações do regime regular, então `RTC_REGIME_REGULAR_REF` também muda o banco do Simples Nacional.
+
+Por exemplo, a 1.6.1 do regime regular, anterior à correção das issues #3 e #10, faz os dois casos do regime regular falharem:
+
+```bash
+RTC_REGIME_REGULAR_REF=1.6.1 RTC_REGIME_REGULAR_JAVA=21 dotnet test --filter "DisplayName~regime-regular"
+```
+
+Para testar uma calculadora que você subiu à mão, seguindo o README do repositório oficial (no Simples Nacional, o endereço é `http://localhost:8082/api`):
+
+```bash
+RTC_REGIME_REGULAR_URL=http://localhost:8080/api/calculadora dotnet test
+```
 
 ## Estrutura
 
 ```
+calculadoras/Dockerfile       imagens das calculadoras oficiais, compiladas do código-fonte
 cases/                        casos de teste em JSON, por calculadora
   regime-regular/
   simples-nacional/
-tests/RtcConformidade.Tests/  invariantes e executor dos casos (xUnit)
+tests/RtcConformidade.Tests/  invariantes, executor dos casos e subida das calculadoras (xUnit)
 ```
 
 ## Como contribuir

@@ -1,0 +1,37 @@
+{
+  "id": "rr-vibs-001",
+  "calculadora": "regime-regular",
+  "endpoint": "POST /regime-geral",
+  "descricao": "vIBSUF de 1727,6175 e vIBSMun de 352,575 aparecem como 1727.62 e 352.58, então o vIBS precisa ser 2080.20 e não 2080.19 (até a 1.6.x a calculadora somava antes de arredondar)",
+  "baseLegal": "NT 2025.002, regra UB54a-10 (rejeição 1150), citada na issue: o vIBS do item é a soma do vIBSUF e do vIBSMun",
+  "origem": "https://github.com/ReceitaFederal/calculadora-rtc-regime-regular/issues/10",
+  "entrada": {
+    "id": "rtc-conformidade-rr-vibs-001",
+    "versao": "1.0.0",
+    "dhFatoGerador": "2033-06-01T12:00:00-03:00",
+    "municipio": 3550308,
+    "uf": "SP",
+    "itens": [
+      {
+        "numero": 1,
+        "ncm": "22011000",
+        "cst": "000",
+        "cClassTrib": "000001",
+        "baseCalculo": 11752.50,
+        "quantidade": 1,
+        "unidade": "UN",
+        "aliquotasNominais": { "cbs": 8.8, "ibsEstadual": 14.7, "ibsMunicipal": 3.0 }
+      }
+    ]
+  },
+  "esperado": {
+    "objetos": [
+      { "tribCalc": { "IBSCBS": { "gIBSCBS": {
+        "gIBSUF": { "vIBSUF": "1727.62" },
+        "gIBSMun": { "vIBSMun": "352.58" },
+        "vIBS": "2080.20"
+      } } } }
+    ],
+    "total": { "tribCalc": { "IBSCBSTot": { "gIBS": { "vIBS": "2080.20" } } } }
+  }
+}

@@ -21,7 +21,7 @@ Cada caso é um arquivo `.json` dentro da pasta da calculadora que ele testa (`r
 | --- | --- |
 | `id` | Identificador único, em minúsculas e com hífens |
 | `calculadora` | `regime-regular` ou `simples-nacional` |
-| `endpoint` | Método e caminho relativos à URL base da calculadora |
+| `endpoint` | Método e caminho relativos à URL base da calculadora: `/api/calculadora` no regime regular e `/api` no Simples Nacional |
 | `descricao` | Uma frase dizendo o que o caso verifica |
 | `baseLegal` | Dispositivo legal ou nota técnica que define o resultado |
 | `origem` | De onde veio o valor esperado: issue, documentação oficial ou revisão de um contador |
@@ -31,6 +31,6 @@ Cada caso é um arquivo `.json` dentro da pasta da calculadora que ele testa (`r
 ## Regras
 
 - Só entram casos cujo valor esperado tem origem verificável. Sem origem, o caso fica de fora.
-- O teste `ExecutorDosCasos` manda a `entrada` de cada caso para a calculadora e confere a resposta contra o `esperado` e as invariantes. Ele precisa da calculadora no ar.
+- O teste `ExecutorDosCasos` manda a `entrada` de cada caso para a calculadora e confere a resposta contra o `esperado` e as invariantes. Ele sobe a calculadora em um container, ou usa a que estiver no endereço de `RTC_REGIME_REGULAR_URL` ou `RTC_SIMPLES_NACIONAL_URL` (veja o README principal).
 - Valores monetários são lidos como `decimal`, nunca como `double`, para não introduzir erro de arredondamento no próprio teste.
 - O teste `FormatoDosCasos` roda em todo `dotnet test`, sem precisar da calculadora. Ele confere se o JSON é válido, se os campos obrigatórios estão presentes, se o `id` segue o formato e não se repete, e se a `calculadora` bate com a pasta do arquivo.

@@ -12,6 +12,8 @@ permissions:
 jobs:
   testes:
     runs-on: ubuntu-latest
+    # A primeira etapa com calculadora compila as duas a partir do código-fonte (alguns minutos).
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
 
@@ -25,7 +27,11 @@ jobs:
       - name: Compilar
         run: dotnet build --no-restore --configuration Release
 
-      # Os testes marcados com Requer=calculadora ficam de fora até as calculadoras
-      # subirem no CI com Testcontainers (semana 2).
-      - name: Testar
+      # Formato dos casos e checagens das invariantes com respostas escritas à mão: falham rápido.
+      - name: Testar sem as calculadoras
         run: dotnet test --no-build --configuration Release --filter "Requer!=calculadora" --logger "console;verbosity=normal"
+
+      # Os testes sobem as calculadoras oficiais em containers (Testcontainers), nas versões
+      # fixadas em calculadoras/Dockerfile.
+      - name: Testar contra as calculadoras
+        run: dotnet test --no-build --configuration Release --filter "Requer=calculadora" --logger "console;verbosity=normal"

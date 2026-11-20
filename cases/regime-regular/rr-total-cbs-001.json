@@ -2,7 +2,7 @@
   "id": "rr-total-cbs-001",
   "calculadora": "regime-regular",
   "endpoint": "POST /regime-geral",
-  "descricao": "Dois itens cujos vCBS arredondados somam 27.05, mas o total da nota sai 27.06",
+  "descricao": "Dois itens cujos vCBS arredondados somam 27.05, então o total da nota precisa ser 27.05 (até a 1.6.x a calculadora somava antes de arredondar e dava 27.06)",
   "baseLegal": "Rejeição 1091 da SEFAZ: \"Total de CBS difere da soma dos itens\"",
   "origem": "https://github.com/ReceitaFederal/calculadora-rtc-regime-regular/issues/3",
   "entrada": {

@@ -1,0 +1,33 @@
+{
+  "id": "sn-total-001",
+  "calculadora": "simples-nacional",
+  "endpoint": "POST /calculadora/observabilidade/simples-nacional/nao-assistido",
+  "descricao": "Três itens de R$ 34,00 no Anexo I: por item, IBS de 0,004386 e CBS de 0,394808 aparecem como 0.00 e 0.39, então o total do item é 0.39 e os totais da nota são 0.00, 1.17 e 1.17 (somando as 8 casas, sairiam 0.40, 0.01, 1.18 e 1.20)",
+  "baseLegal": "ADR003 da calculadora: o total do item e os totais da operação são a soma dos valores exibidos, conferida sem tolerância na autorização do documento. Alíquotas do exemplo \"NF-e — CRT 1\" do Swagger oficial",
+  "origem": "https://github.com/ReceitaFederal/calculadora-rtc-simples-nacional/issues/4",
+  "entrada": {
+    "id": "rtc-conformidade-sn-total-001",
+    "versao": "3.0.0",
+    "data": "2027-03-15",
+    "tpDoc": "55",
+    "CRT": "1",
+    "aliquotasEfetivas": {
+      "fatorR": true,
+      "impedimentoSublimite": false,
+      "anexoI": { "pCBSSN": "1.1612", "pIBSSN": "0.0129" }
+    },
+    "itens": [
+      { "numero": 1, "cAtivSN": "01", "cClassTrib": "000001", "baseCalculo": "34.00", "valorImpostoSeletivo": "0.00" },
+      { "numero": 2, "cAtivSN": "01", "cClassTrib": "000001", "baseCalculo": "34.00", "valorImpostoSeletivo": "0.00" },
+      { "numero": 3, "cAtivSN": "01", "cClassTrib": "000001", "baseCalculo": "34.00", "valorImpostoSeletivo": "0.00" }
+    ]
+  },
+  "esperado": {
+    "objetos": [
+      { "estadoItem": "CALCULADO", "tribCalc": { "vIBSSN": "0.00", "vCBSSN": "0.39", "totalItem": "0.39" } },
+      { "estadoItem": "CALCULADO", "tribCalc": { "vIBSSN": "0.00", "vCBSSN": "0.39", "totalItem": "0.39" } },
+      { "estadoItem": "CALCULADO", "tribCalc": { "vIBSSN": "0.00", "vCBSSN": "0.39", "totalItem": "0.39" } }
+    ],
+    "total": { "vIBSSNtot": "0.00", "vCBSSNtot": "1.17", "totalTributos": "1.17" }
+  }
+}

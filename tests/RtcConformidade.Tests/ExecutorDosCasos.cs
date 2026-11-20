@@ -5,9 +5,10 @@ namespace RtcConformidade.Tests;
 
 /// <summary>
 /// Manda a entrada de cada caso em cases/ para a calculadora e confere a resposta contra o
-/// esperado e as invariantes. Precisa da calculadora no ar: veja "Como rodar" no README.
+/// esperado e as invariantes. Sobe as calculadoras em containers, se for preciso (veja Calculadoras).
 /// </summary>
-public class ExecutorDosCasos
+[Collection(ColecaoCalculadoras.Nome)]
+public class ExecutorDosCasos(Calculadoras calculadoras)
 {
     private static readonly HttpClient Http = new() { Timeout = TimeSpan.FromSeconds(60) };
 
@@ -29,10 +30,24 @@ public class ExecutorDosCasos
     {
         using var caso = JsonDocument.Parse(File.ReadAllText(Path.Combine(Casos.Pasta, arquivo)));
         var raiz = caso.RootElement;
-        var calculadora = raiz.GetProperty("calculadora").GetString();
+        var nome = raiz.GetProperty("calculadora").GetString()!;
         var (metodo, caminho) = LerEndpoint(raiz.GetProperty("endpoint").GetString()!);
+        var calculadora = calculadoras.Da(nome);
 
-        var baseUrl = calculadora == "regime-regular" ? Calculadoras.RegimeRegular : Calculadoras.SimplesNacional;
+        Uri baseUrl;
+        try
+        {
+            baseUrl = await calculadora.Url();
+        }
+        catch (Exception erro)
+        {
+            Assert.Fail($"Não consegui subir a calculadora {nome} em um container. "
+                + $"A suíte precisa do Docker, ou de {calculadora.VariavelDaUrl} apontando para uma calculadora no ar. "
+                + "Para rodar só os testes que não precisam dela: dotnet test --filter \"Requer!=calculadora\""
+                + $"{Environment.NewLine}{erro.GetType().Name}: {Resumir(erro.Message)}");
+            return;
+        }
+
         var url = new Uri(baseUrl, caminho);
 
         using var requisicao = new HttpRequestMessage(metodo, url);
@@ -49,8 +64,8 @@ public class ExecutorDosCasos
         }
         catch (Exception erro) when (erro is HttpRequestException or TaskCanceledException)
         {
-            Assert.Fail($"A calculadora não respondeu em {url} ({erro.Message}). Suba a calculadora (veja o README) "
-                + "ou rode só os testes que não precisam dela: dotnet test --filter \"Requer!=calculadora\"");
+            Assert.Fail($"A calculadora não respondeu em {url} ({erro.Message})."
+                + (calculadora.Externa ? $" Confira se ela está no ar no endereço de {calculadora.VariavelDaUrl}." : ""));
             return;
         }
 
@@ -61,13 +76,22 @@ public class ExecutorDosCasos
 
             using var json = JsonDocument.Parse(corpo);
             var problemas = Esperado.Conferir(raiz.GetProperty("esperado"), json.RootElement);
-            if (calculadora == "regime-regular")
-            {
-                problemas.AddRange(Invariantes.TotalIgualASomaDosItens(json.RootElement));
-            }
+            problemas.AddRange(Invariantes.Conferir(nome, json.RootElement));
 
             Falhas.SeHouver($"{arquivo} não confere com {metodo} {url}", problemas);
         }
+    }
+
+    /// <summary>
+    /// Um erro de build traz o log inteiro do Docker. Ficam a primeira linha e as últimas, onde
+    /// está o motivo da falha (por exemplo, o erro de compilação).
+    /// </summary>
+    private static string Resumir(string mensagem, int ultimasLinhas = 40)
+    {
+        var linhas = mensagem.Split('\n');
+        return linhas.Length <= ultimasLinhas + 1
+            ? mensagem
+            : string.Join('\n', [linhas[0], $"  [... {linhas.Length - ultimasLinhas - 1} linhas omitidas ...]", .. linhas[^ultimasLinhas..]]);
     }
 
     /// <summary>Separa "POST /regime-geral" em método e caminho relativo à URL base.</summary>
